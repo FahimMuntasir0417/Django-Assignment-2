@@ -16,7 +16,7 @@ def send_activation_email(sender, instance, created, **kwargs):
         token = default_token_generator.make_token(instance)
         uid = instance.pk
 
-        activation_link = f"http://127.0.0.1:8000/users/activate/{uid}/{token}/"
+        activation_link = f"https://django-assignment-2-5y10.onrender.com//users/activate/{uid}/{token}/"
 
         subject = 'Activate Your Account'
         message = f"""
