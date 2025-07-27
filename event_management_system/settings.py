@@ -18,8 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 CSRF_TRUSTED_ORIGINS = [
     "https://django-assignment-2-5y10.onrender.com",
+    "https://*.onrender.com",
 ]
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -29,8 +29,10 @@ SECRET_KEY = 'django-insecure-*+$v)!s(+_25)&y!ml_04xf(z2ao1z_enumm+m3#v*n2p)kgbm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['http://*.onrender.com', 'http://127.0.0.1:8000']  
+# ALLOWED_HOSTS = ['*']
+# CSRF_TRUSTED_ORIGINS = ['http://*.onrender.com', 'http://127.0.0.1:8000']  
+ALLOWED_HOSTS = ['django-assignment-2-5y10.onrender.com', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
