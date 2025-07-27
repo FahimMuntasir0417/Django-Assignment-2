@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Signup with Background Image</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .bg-stock-image {
+            /* For licensed Adobe Stock image (#151430) - replace with actual URL */
+            /* background-image: url('your-licensed-adobe-stock-image-url.jpg'); */
+            
+            /* Free placeholder alternative */
+            background-image: url('https://images.unsplash.com/photo-1518655048521-f130df041f66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .bg-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .input-focus-effect:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-stock-image">
+    <div class="min-h-screen flex items-center justify-center p-4 bg-overlay">
+        <div class="w-full max-w-md">
+            <!-- Card with glass morphism effect -->
+            <div class="rounded-xl bg-white/20 backdrop-blur-md shadow-2xl overflow-hidden border border-white/20">
+                <!-- Gradient header -->
+                <div class="bg-gradient-to-r from-slate-700 to-slate-950 p-6 text-center">
+                    <h1 class="text-2xl font-bold text-white">Create Your Account</h1>
+                    <p class="text-indigo-100 mt-1">Join our community today</p>
+                </div>
+                    {% if messages %}
+                        <div class="mb-4">
+                            {% for message in messages %}
+                                <div class="text-sm text-white px-4 py-2 rounded {{ message.tags }} {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                <!-- Form section -->
+                <form method="POST" class="p-8 space-y-5">
+                    {% csrf_token %}
+                    <!-- Name fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-slate-950 mb-1">First Name</label>
+                            <input 
+                                type="text" 
+                                id="first_name" 
+                                name="first_name" 
+                                required 
+                                class="w-full px-4 py-3  bg-stone-200 rounded-lg border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="John">
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-slate-950 mb-1">Last Name</label>
+                            <input 
+                                type="text" 
+                                id="last_name" 
+                                name="last_name" 
+                                required 
+                                class="w-full px-4 py-3 rounded-lg bg-stone-200 border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="Doe">
+                        </div>
+                    </div>
+                    
+                    <!-- Username field with icon -->
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-slate-950 mb-1">Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                required 
+                                class="w-full pl-10 px-4 py-3 bg-stone-200 rounded-lg border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="johndoe">
+                        </div>
+                    </div>
+                    
+                    <!-- Email field with icon -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-950 mb-1">Email</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required 
+                                class="w-full pl-10 px-4 py-3 bg-stone-200 rounded-lg border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="john@example.com">
+                        </div>
+                    </div>
+                    
+                    <!-- Password field with icon and strength meter -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-950 mb-1">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password1" 
+                                required 
+                                class="w-full pl-10 px-4 py-3 bg-stone-200 rounded-lg border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="••••••••">
+                        </div>
+                         {% comment %} <div class="mt-2 flex items-center space-x-2">
+                            <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                <div class="h-full w-0 rounded-full bg-red-400 transition-all duration-500" id="password-strength"></div>
+                            </div>
+                            
+                        </div>  {% endcomment %}
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-slate-950 mb-1">Confim Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password2" 
+                                required 
+                                class="w-full pl-10 px-4 py-3 bg-stone-200 rounded-lg border border-gray-200 focus:border-indigo-500 input-focus-effect transition-all duration-200"
+                                placeholder="••••••••">
+                        </div>
+                        {% comment %} <div class="mt-2 flex items-center space-x-2">
+                            <div class="h-1.5 flex-1 rounded-full bg-gray-200 overflow-hidden">
+                                <div class="h-full w-0 rounded-full bg-red-400 transition-all duration-500" id="password-strength"></div>
+                            </div>
+                            
+                        </div> {% endcomment %}
+                    </div>
+                    
+                    <!-- Terms checkbox -->
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input 
+                                id="terms" 
+                                name="terms" 
+                                type="checkbox" 
+                                required 
+                                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        </div>
+                        <label for="terms" class="ml-3 text-sm  text-slate-700">
+                            I agree to the <a href="#" class="text-slate-950 hover:underline font-medium">Terms of Service</a> and <a href="#" class="text-slate-950 hover:underline font-medium">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <!-- Submit button with gradient -->
+                    <button 
+                        type="submit" 
+                        class="w-full bg-gradient-to-r from-slate-700 to-slate-950 text-white py-3 px-4 rounded-lg hover:from-slate-600 hover:to-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <span class="font-medium">Create Account</span>
+                    </button>
+                </form>
+                
+                <!-- Footer with login link -->
+                <div class="px-8 pb-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Already have an account? 
+                        <a href="{% url 'users:login' %}" class="text-slate-950 hover:underline font-medium">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

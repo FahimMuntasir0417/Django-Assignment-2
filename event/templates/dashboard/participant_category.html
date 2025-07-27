@@ -1,0 +1,45 @@
+{% extends 'event/base.html' %}
+
+{% block title %}Category List - Event Management System{% endblock %}
+
+{% block content %}
+<header class="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-6 shadow-md">
+  <div class="max-w-7xl mx-auto px-4">
+    <h1 class="text-4xl font-extrabold tracking-tight">🎯 Event Categories</h1>
+    <p class="mt-2 text-lg text-blue-100">Explore the types of events we offer</p>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-10">
+  <div class="flex justify-end mb-6">
+    <a href="#" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+        Add New Category
+    </a>
+  </div>
+
+  {% if categories %}
+    <ul class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {% for category in categories %}
+        <li class="bg-white rounded-2xl shadow-lg border hover:border-blue-400 hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-blue-700 mb-2">{{ category.name }}</h2>
+            <p class="text-gray-600">{{ category.description|default:"No description provided." }}</p>
+          </div>
+          <div class="mt-4 flex space-x-4"> 
+            <a href="#" class="inline-block text-sm text-blue-600 hover:underline">View Events</a>
+            <a href="#" class="inline-block text-sm text-indigo-600 hover:underline">Edit</a>
+            <a href="#" class="inline-block text-sm text-red-600 hover:underline">Delete</a>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="text-center text-gray-500 text-xl mt-20">
+      🚫 No categories found.
+    </div>
+  {% endif %}
+</main>
+
+
+{% endblock %}
