@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.views import View
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -16,7 +17,12 @@ from .forms import EventForm,  CategoryForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import user_passes_test
 from users.views import is_admin
-
+from django.views.generic.edit import CreateView ,UpdateView , DeleteView 
+from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.http import HttpResponseRedirect
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 def is_organizer(user):
@@ -58,6 +64,50 @@ def manager_dashboard(request):
     }
     return render(request, "event/dashboard.html", context)
 
+
+
+@method_decorator(user_passes_test(is_organizer), name='dispatch')
+class ManagerDashboardView(View):
+    template_name = 'event/dashboard.html'
+
+    def get(self, request):
+        total_events = Event.objects.count()
+        upcoming_events_count = Event.objects.filter(date__gte=timezone.now().date()).count()
+        past_events_count = Event.objects.filter(date__lt=timezone.now().date()).count()
+        total_participants = User.objects.count()
+
+        counts = {
+            'total_events': total_events,
+            'upcoming_events_count': upcoming_events_count,
+            'past_events_count': past_events_count,
+            'total_participants': total_participants,
+        }
+
+        event_filter_type = request.GET.get('type', 'all')
+
+        filtered_events = Event.objects.select_related('category') \
+            .annotate(participant_count=Count('participants'))
+
+        if event_filter_type == 'upcoming':
+            filtered_events = filtered_events.filter(date__gte=timezone.now().date())
+        elif event_filter_type == 'past':
+            filtered_events = filtered_events.filter(date__lt=timezone.now().date())
+
+        filtered_events = filtered_events.order_by('date', 'time')
+
+        context = {
+            "filtered_events": filtered_events,
+            "counts": counts,
+            "current_filter_type": event_filter_type,
+        }
+        return render(request, self.template_name, context)
+
+
+
+
+
+
+"""Funtion based view to create event"""
 @user_passes_test(is_organizer)
 def create_event(request):
     event_form = EventForm()
@@ -72,11 +122,32 @@ def create_event(request):
     context = {"form": event_form, "title": "Create New Event"}
     return render(request, "event/event_form.html", context)
 
+
+
+"""create_event by class based view """
+@method_decorator(user_passes_test(is_organizer), name='dispatch')
+class EventCreateView(CreateView):
+    modrl = Event
+    form_class = EventForm
+    template_name = 'event/event_form.html'
+    success_url = reverse_lazy('event:event_list')
+    
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request, "Event Created Successfully")
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create New Event'
+        return context
+
+
 @user_passes_test(is_organizer)
 def update_event(request, pk):
     try:
         event = Event.objects.get(pk=pk)
-    except Event.DoesNotExist:
+    except Event.DoesNotExist:     
         raise Http404("Event does not exist")
     event_form = EventForm(instance=event)
 
@@ -90,6 +161,23 @@ def update_event(request, pk):
     context = {"form": event_form, "title": "Update Event"}
     return render(request, "event/event_form.html", context)
 
+"""class vased view to update event"""
+class EventUpdateView(UpdateView):
+    model = Event
+    form_class = EventForm
+    template_name = 'event/event_form.html'
+    pk_url_kwarg = 'pk'
+    success_url = reverse_lazy('event:event_list') 
+
+
+    def form_valid(self, form):
+        messages.success(self.request, "Event Updated Successfully")
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Update Event"
+        return context
 
 @user_passes_test(is_organizer)
 def delete_event(request, pk):
@@ -102,6 +190,27 @@ def delete_event(request, pk):
         messages.success(request, 'Event Deleted Successfully')
         return redirect('event:event_list')
     return render(request, 'event/confirm_delete.html', {'object': event, 'type': 'Event'})
+
+
+"""class based view to delete event"""
+class EventDeleteView(DeleteView):
+    model = Event
+    template_name = 'event/confirm_delete.html'
+    pk_url_kwarg = 'pk'
+    success_url = reverse_lazy('event:event_list') 
+
+    def delete(self, request, *args, **kwargs):
+ 
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        messages.success(request, "Event Deleted Successfully")
+        return HttpResponseRedirect(success_url)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['type'] = 'Event'  
+        return context
 
 @user_passes_test(is_organizer)
 def event_list(request):
@@ -125,6 +234,41 @@ def event_list(request):
         'selected_category': category_id,
     }
     return render(request, 'event/event_list.html', context)
+
+
+
+@method_decorator(user_passes_test(is_organizer), name='dispatch')
+class EventListView(ListView):
+    model = Event
+    template_name = 'event/event_list.html'
+    context_object_name = 'events'
+
+    def get_queryset(self):
+        queryset = Event.objects.select_related('category') \
+                                .annotate(participant_count=Count('participants')) \
+                                .order_by('date', 'time')
+
+        search_query = self.request.GET.get('q')
+        category_id = self.request.GET.get('category')
+
+        if search_query:
+            queryset = queryset.filter(Q(name__icontains=search_query) |
+                                       Q(location__icontains=search_query))
+
+        if category_id:
+            queryset = queryset.filter(category__id=category_id)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all().order_by('name')
+        context['search_query'] = self.request.GET.get('q', '')
+        context['selected_category'] = self.request.GET.get('category', '')
+        return context
+
+
+
 
 @user_passes_test(is_organizer)
 def event_detail(request, pk):
@@ -239,19 +383,40 @@ def participant_dashboard(request):
     }
     return render(request, 'dashboard/participant.html', context)
 
+# @login_required
+# @user_passes_test(is_participant)
+# def rsvp_event(request, event_id):
+#     event = get_object_or_404(Event, id=event_id)
+    
+#     if request.method == 'POST':
+#         if not event.participants.filter(id=request.user.id).exists():
+#             event.participants.add(request.user, through_defaults={'status': 'going'})
+#             messages.success(request, f'You have successfully RSVP\'d to {event.title}')
+#         else:
+#             messages.warning(request, 'You have already RSVP\'d to this event')
+    
+#     return redirect('event:participant') 
+
+
 @login_required
 @user_passes_test(is_participant)
 def rsvp_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    
+
     if request.method == 'POST':
-        if not event.participants.filter(id=request.user.id).exists():
-            event.participants.add(request.user, through_defaults={'status': 'going'})
+       
+        rsvp, created = RSVP.objects.get_or_create(
+            user=request.user,
+            event=event,
+            defaults={'status': RSVP.Status.GOING}
+        )
+        if created:
             messages.success(request, f'You have successfully RSVP\'d to {event.title}')
         else:
             messages.warning(request, 'You have already RSVP\'d to this event')
-    
-    return redirect('event:participant') 
+
+    return redirect('event:participant')
+
 
 
 @login_required
