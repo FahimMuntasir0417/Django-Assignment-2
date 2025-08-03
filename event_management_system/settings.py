@@ -33,7 +33,7 @@ DEBUG = True
 # CSRF_TRUSTED_ORIGINS = ['http://*.onrender.com', 'http://127.0.0.1:8000']  
 ALLOWED_HOSTS = ['django-assignment-2-5y10.onrender.com', 'localhost', '127.0.0.1']
 
-
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Application definition
 
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+    'django.contrib.humanize',
     'event',
     'users.apps.UsersConfig', 
     
@@ -134,7 +134,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
@@ -169,3 +170,6 @@ EMAIL_HOST_USER = 'fahimmuntasirbejoy@gmail.com'
 EMAIL_HOST_PASSWORD = 'nwgi mnck kjaz rzgy'  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/users/dashboard/'
+# LOGOUT_REDIRECT_URL = '/'
